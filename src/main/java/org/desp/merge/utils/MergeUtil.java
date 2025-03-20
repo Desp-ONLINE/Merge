@@ -31,9 +31,10 @@ public class MergeUtil {
                 "§a     실패 확률: §f" + (100 - weaponData.getSuccessPercentage()) + "%"
         );
 
-        ItemStack button = new ItemStack(Material.OAK_BUTTON, 1);
+        ItemStack button = new ItemStack(Material.PAPER, 1);
         ItemMeta buttonItemMeta = button.getItemMeta();
         buttonItemMeta.setDisplayName("§a 합성하기");
+        buttonItemMeta.setCustomModelData(10260);
         button.setItemMeta(buttonItemMeta);
         button.setLore(upgradeLore);
 
@@ -63,18 +64,21 @@ public class MergeUtil {
     }
 
     public static boolean removeItem(Inventory inventory, String itemId) {
-        for (ItemStack item : inventory.getContents()) {
+        for (int i = 0; i < inventory.getSize(); i++) {
+            ItemStack item = inventory.getItem(i);
+
             if (item != null && itemId.equals(MMOItems.plugin.getID(item))) {
                 if (item.getAmount() > 1) {
-                    item.setAmount(item.getAmount() - 1);
+                    item.setAmount(item.getAmount() - 1); // 개수 1 감소
                 } else {
-                    inventory.remove(item);
+                    inventory.setItem(i, null); // 개수가 1개면 슬롯을 비움
                 }
-                return true;
+                return true; // 첫 번째로 찾은 아이템 하나만 처리하고 종료
             }
         }
-        return false;
+        return false; // 해당 아이템이 없으면 false 반환
     }
+
 
     public static void removeMaterials(Inventory inventory, List<Map<String, Integer>> materials, boolean removeCoreItems, List<String> coreItems) {
         for (Map<String, Integer> material : materials) {
@@ -100,14 +104,15 @@ public class MergeUtil {
                         break;
                     } else {
                         requiredQuantity -= item.getAmount();
+
                         toRemove.add(item);
                     }
-
                     if (requiredQuantity <= 0) break;
                 }
 
                 for (ItemStack item : toRemove) {
                     inventory.remove(item);
+                    //toRemove.remove(item);
                 }
             }
         }

@@ -1,5 +1,7 @@
 package org.desp.merge.ui;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
@@ -24,15 +26,29 @@ public class MergeUI implements InventoryHolder {
 
             setBackground();
             setExplainSign(4);
-            setExplainSign(28);
+            setExplainSign2(28);
         }
         return inventory;
     }
 
     private void setExplainSign(int slot) {
-        ItemStack explainItemStack = new ItemStack(Material.OAK_HANGING_SIGN, 1);
+        ItemStack explainItemStack = new ItemStack(Material.PAPER, 1);
         ItemMeta explain = explainItemStack.getItemMeta();
-        explain.setDisplayName("§a 설명");
+        explain.setCustomModelData(10237);
+        explain.setDisplayName("§a 합성 성공 시 아이템입니다");
+        explainItemStack.setItemMeta(explain);
+        inventory.setItem(slot, explainItemStack);
+    }
+
+    private void setExplainSign2(int slot) {
+        ItemStack explainItemStack = new ItemStack(Material.PAPER, 1);
+        ItemMeta explain = explainItemStack.getItemMeta();
+        explain.setDisplayName("§a 코어 아이템");
+        explain.setCustomModelData(10237);
+        List<String> lore = new ArrayList<>();
+        lore.add(" ");
+        lore.add(" §f합성에 실패해도 사라지지 않습니다.");
+        explain.setLore(lore);
         explainItemStack.setItemMeta(explain);
         inventory.setItem(slot, explainItemStack);
     }
