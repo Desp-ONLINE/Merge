@@ -16,6 +16,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
@@ -48,13 +50,17 @@ public class MergeListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
+
         if (!isValidClick(e)) return;
 
         if (isPlayerInventory(e)) {
             e.setCancelled(true);
             return;
         }
-
+        if(!e.getAction().equals(InventoryAction.PICKUP_ALL)){
+            e.setCancelled(true);
+            return;
+        }
         if (isMergeInventoryClick(e)) {
             e.setCancelled(true);
             handleMergeInventoryClick(e);
