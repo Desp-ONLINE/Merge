@@ -43,11 +43,13 @@ public class Validator {
     }
 
     public static boolean isMergeInventory(InventoryOpenEvent e) {
-        return e.getView().getTitle().split("-")[0].equals(MERGE_TITLE);
+        return e.getInventory().getHolder() instanceof MergeUI;
     }
 
     public static boolean isMergeInventoryClick(InventoryClickEvent e) {
-        return e.getView().getTitle().split("-")[0].equals(MERGE_TITLE) && isChestSlot(e);
+//        return e.getView().getTitle().split("-")[0].equals(MERGE_TITLE) && isChestSlot(e);
+        return e.getInventory().getHolder() instanceof MergeUI;
+
     }
 
     public static boolean isValidClick(InventoryClickEvent e) {
