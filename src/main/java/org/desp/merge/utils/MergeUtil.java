@@ -12,6 +12,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.desp.merge.Merge;
 import org.desp.merge.dto.MergeItemInfo;
@@ -79,8 +80,9 @@ public class MergeUtil {
         return false; // 해당 아이템이 없으면 false 반환
     }
 
+    public static void removeMaterials(Player player, List<Map<String, Integer>> materials, boolean removeCoreItems, List<String> coreItems) {
+        PlayerInventory inventory = player.getInventory();
 
-    public static void removeMaterials(Inventory inventory, List<Map<String, Integer>> materials, boolean removeCoreItems, List<String> coreItems) {
         for (Map<String, Integer> material : materials) {
             for (Map.Entry<String, Integer> entry : material.entrySet()) {
                 String materialId = entry.getKey();
@@ -90,36 +92,74 @@ public class MergeUtil {
                     continue;
                 }
 
-                List<ItemStack> toRemove = new ArrayList<>();
-
-                for (ItemStack item : inventory.getContents()) {
-                    if (item == null) continue;
-
-                    String itemId = MMOItems.plugin.getID(item);
-                    if (itemId == null || !materialId.equals(itemId)) continue;
-
-                    if (item.getAmount() > requiredQuantity) {
-                        item.setAmount(item.getAmount() - requiredQuantity);
-                        requiredQuantity = 0;
-                        break;
-                    } else {
-                        requiredQuantity -= item.getAmount();
-
-                        toRemove.add(item);
+                ItemStack offHandItem = inventory.getItemInOffHand();
+                if (offHandItem != null) {
+                    String offHandId = MMOItems.plugin.getID(offHandItem);
+                    if (offHandId != null && materialId.equals(offHandId)) {
+                        int amount = offHandItem.getAmount();
+                        if (amount >= requiredQuantity) {
+                            offHandItem.setAmount(amount - requiredQuantity);
+                            if (amount - requiredQuantity <= 0) {
+                                inventory.setItemInOffHand(null);
+                            } else {
+                                inventory.setItemInOffHand(offHandItem);
+                            }
+                            requiredQuantity = 0;
+                        } else {
+                            requiredQuantity -= amount;
+                            inventory.setItemInOffHand(null);
+                        }
                     }
-                    if (requiredQuantity <= 0) break;
                 }
 
-                for (ItemStack item : toRemove) {
-                    inventory.remove(item);
-                    //toRemove.remove(item);
+                if (requiredQuantity > 0) {
+                    List<ItemStack> toRemove = new ArrayList<>();
+
+                    for (ItemStack item : inventory.getContents()) {
+                        if (item == null) continue;
+
+                        String itemId = MMOItems.plugin.getID(item);
+                        if (itemId == null || !materialId.equals(itemId)) continue;
+
+                        if (item.getAmount() > requiredQuantity) {
+                            item.setAmount(item.getAmount() - requiredQuantity);
+                            requiredQuantity = 0;
+                            break;
+                        } else {
+                            requiredQuantity -= item.getAmount();
+                            toRemove.add(item);
+                        }
+
+                        if (requiredQuantity <= 0) break;
+                    }
+
+                    for (ItemStack item : toRemove) {
+                        inventory.remove(item);
+                    }
                 }
             }
         }
 
         if (removeCoreItems && coreItems != null) {
             for (String coreItem : coreItems) {
-                removeItem(inventory, coreItem);
+                ItemStack offHandItem = inventory.getItemInOffHand();
+                if (offHandItem != null) {
+                    String offHandId = MMOItems.plugin.getID(offHandItem);
+                    if (offHandId != null && coreItem.equals(offHandId)) {
+                        inventory.setItemInOffHand(null);
+                        continue;
+                    }
+                }
+
+                for (ItemStack item : inventory.getContents()) {
+                    if (item == null) continue;
+
+                    String itemId = MMOItems.plugin.getID(item);
+                    if (itemId != null && coreItem.equals(itemId)) {
+                        inventory.remove(item);
+                        break;
+                    }
+                }
             }
         }
     }

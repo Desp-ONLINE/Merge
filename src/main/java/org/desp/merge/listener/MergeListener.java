@@ -16,7 +16,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
@@ -50,17 +49,18 @@ public class MergeListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-
         if (!isValidClick(e)) return;
 
         if (isPlayerInventory(e)) {
             e.setCancelled(true);
             return;
         }
-        if(!e.getAction().equals(InventoryAction.PICKUP_ALL)){
+
+        if (!e.getAction().equals(InventoryAction.PICKUP_ALL)) {
             e.setCancelled(true);
             return;
         }
+
         if (isMergeInventoryClick(e)) {
             e.setCancelled(true);
             handleMergeInventoryClick(e);
@@ -127,7 +127,7 @@ public class MergeListener implements Listener {
         if (wool != null && wool.getType() == Material.GREEN_WOOL) {
             MergeUtil.removeItem(playerInventory, PROTECTION_ITEM_ID);
         }
-            MergeUtil.removeMaterials(player.getInventory(), mergeItemInfo.getMaterials(), true, mergeItemInfo.getCoreItem());
+            MergeUtil.removeMaterials(player, mergeItemInfo.getMaterials(), true, mergeItemInfo.getCoreItem());
 
             String message = "§f" + player.getName() + "§a 님께서 " + mergeItemInfo.getAfterWeapon().replace("합성무기_", "")
                     .replace("0", "") + " 합성에 성공했습니다!";
@@ -148,7 +148,7 @@ public class MergeListener implements Listener {
             VelocityClient.getInstance().getConnectClient().send(VelocityProxyListener.class, message);
 
         } else {
-            MergeUtil.removeMaterials(playerInventory, mergeItemInfo.getMaterials(), false,
+            MergeUtil.removeMaterials(player, mergeItemInfo.getMaterials(), false,
                     mergeItemInfo.getCoreItem());
 
             String message = "§f" + player.getName() + "§c 님께서 " + mergeItemInfo.getAfterWeapon().replace("합성무기_", "")
