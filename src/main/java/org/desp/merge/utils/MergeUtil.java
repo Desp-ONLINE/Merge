@@ -15,22 +15,38 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.desp.merge.Merge;
+import org.desp.merge.database.LogSystemRepository;
 import org.desp.merge.dto.MergeItemInfo;
 
 public class MergeUtil {
 
     private static final String MERGE_TICKET_ID = "기타_합성의서"; // 합성권 ID
 
-    public static void setLore(InventoryOpenEvent e, MergeItemInfo weaponData) {
+    public static void setLore(Player player, InventoryOpenEvent e, MergeItemInfo weaponData) {
         ItemStack cursor = e.getInventory().getItem(13);
         if (cursor == null || !cursor.hasItemMeta()) return;
 
-        List<String> upgradeLore = Arrays.asList(
-                "§f    합성 정보",
-                "§a     강화 필요 비용: §f" + weaponData.getCost() + "골드",
-                "§a     성공 확률: §f" + weaponData.getSuccessPercentage() + "%",
-                "§a     실패 확률: §f" + (100 - weaponData.getSuccessPercentage()) + "%"
-        );
+        LogSystemRepository.isPlayerFirstMerge(player);
+
+        Map<String, Boolean> playerCheckCache = LogSystemRepository.playerCheckCache;
+
+        List<String> upgradeLore;
+        if (playerCheckCache.containsKey(player.getUniqueId().toString()) && playerCheckCache.get(
+                player.getUniqueId().toString())) {
+            upgradeLore = Arrays.asList(
+                    "§f    합성 정보",
+                    "§a     강화 필요 비용: §f" + weaponData.getCost() + "골드",
+                    "§a     성공 확률: §f 100%",
+                    "§a     실패 확률: §f 0%"
+            );
+        } else {
+            upgradeLore = Arrays.asList(
+                    "§f    합성 정보",
+                    "§a     강화 필요 비용: §f" + weaponData.getCost() + "골드",
+                    "§a     성공 확률: §f" + weaponData.getSuccessPercentage() + "%",
+                    "§a     실패 확률: §f" + (100 - weaponData.getSuccessPercentage()) + "%"
+            );
+        }
 
         ItemStack button = new ItemStack(Material.PAPER, 1);
         ItemMeta buttonItemMeta = button.getItemMeta();
@@ -42,7 +58,15 @@ public class MergeUtil {
         e.getInventory().setItem(Button.MERGE_SLOT, button);
     }
 
-    public static boolean isMergeSuccessful(int successPercentage) {
+    public static boolean isMergeSuccessful(Player player, int successPercentage) {
+        // 합성 시도 처음이면 무조건 성공
+        Map<String, Boolean> playerCheckCache = LogSystemRepository.playerCheckCache;
+
+        if (playerCheckCache.containsKey(player.getUniqueId().toString()) && playerCheckCache.get(
+                player.getUniqueId().toString())) {
+            playerCheckCache.put(player.getUniqueId().toString(), false);
+            return true;
+        }
         return Math.random() * 100 < successPercentage;
     }
 

@@ -44,7 +44,7 @@ public class MergeListener implements Listener {
         Player player = (Player) e.getPlayer();
         Inventory inventory = e.getInventory();
         setupWoolSlot(inventory, player);
-        ItemRender.rendMaterials(e);
+        ItemRender.rendMaterials(player, e);
     }
 
     @EventHandler
@@ -113,7 +113,7 @@ public class MergeListener implements Listener {
 
         Bukkit.getPluginManager().callEvent(new MergeTryEvent(player, mergeItemInfo));
         // 합성 진행
-        if (MergeUtil.isMergeSuccessful(mergeItemInfo.getSuccessPercentage())) {
+        if (MergeUtil.isMergeSuccessful(player, mergeItemInfo.getSuccessPercentage())) {
             Bukkit.getPluginManager().callEvent(new MergeSuccessEvent(player, mergeItemInfo));
             handleSuccessfulMerge(player, mergeItemInfo, playerInventory);
         } else {

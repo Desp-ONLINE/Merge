@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.Type;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
 import org.desp.merge.Merge;
@@ -14,7 +15,7 @@ import org.desp.merge.utils.MergeUtil;
 
 public class ItemRender {
 
-    public static void rendMaterials(InventoryOpenEvent e){
+    public static void rendMaterials(Player player, InventoryOpenEvent e){
         String title = e.getView().getTitle().split("-")[0];
         if (!title.equals("합성")) {
             return;
@@ -30,7 +31,7 @@ public class ItemRender {
         }
 
         setCoreItem(e, mergeItemInfo);
-        setAfterWeapon(e, mergeItemInfo);
+        setAfterWeapon(player, e, mergeItemInfo);
         setMaterials(e, mergeItemInfo);
     }
 
@@ -62,9 +63,9 @@ public class ItemRender {
         }
     }
 
-    private static void setAfterWeapon(InventoryOpenEvent e, MergeItemInfo mergeItemInfo) {
+    private static void setAfterWeapon(Player player, InventoryOpenEvent e, MergeItemInfo mergeItemInfo) {
         ItemStack item = MMOItems.plugin.getItem(Type.SWORD, mergeItemInfo.getAfterWeapon());
-        MergeUtil.setLore(e, mergeItemInfo);
+        MergeUtil.setLore(player, e, mergeItemInfo);
         e.getInventory().setItem(Button.AFTER_SLOT, item);
     }
 

@@ -3,11 +3,13 @@ package org.desp.merge;
 import com.binggre.velocitysocketclient.VelocityClient;
 import java.util.HashMap;
 import java.util.Map;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.desp.merge.command.MergeCommand;
 import org.desp.merge.database.Repository;
 import org.desp.merge.dto.MergeItemInfo;
 import org.desp.merge.listener.MergeListener;
+import org.desp.merge.listener.PlayerQuitListener;
 import org.desp.merge.listener.VelocityProxyListener;
 
 public final class Merge extends JavaPlugin {
@@ -32,6 +34,7 @@ public final class Merge extends JavaPlugin {
         VelocityClient.getInstance().getConnectClient().registerListener(VelocityProxyListener.class);
 
         this.getServer().getPluginManager().registerEvents(new MergeListener(), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerQuitListener(), this);
         getCommand("merge").setExecutor(new MergeCommand());
     }
 
